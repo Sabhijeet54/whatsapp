@@ -31,6 +31,10 @@ function getHistory() {
   return [...loadCache()].sort((a, b) => (a.createdAt < b.createdAt ? 1 : -1));
 }
 
+function getHistoryById(id) {
+  return loadCache().find((item) => item.id === id) || null;
+}
+
 function addHistory(payload) {
   const history = loadCache();
   const item = {
@@ -59,6 +63,7 @@ function clearHistory() {
 
 module.exports = {
   getHistory,
+  getHistoryById,
   addHistory,
   updateHistory,
   clearHistory,

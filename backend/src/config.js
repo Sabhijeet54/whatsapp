@@ -8,8 +8,6 @@ const config = {
   historyFile: path.join(process.cwd(), "data", "history.json"),
   contactsFile: path.join(process.cwd(), "data", "contacts.json"),
   templatesFile: path.join(process.cwd(), "data", "templates.json"),
-  chromiumPath: process.env.PUPPETEER_EXECUTABLE_PATH || undefined,
-  headless: (process.env.WHATSAPP_HEADLESS || "true") === "true",
   maxSendPerMinute: Number(process.env.MAX_SEND_PER_MINUTE || 18),
   defaultCountryCode: process.env.DEFAULT_COUNTRY_CODE || "91",
 };

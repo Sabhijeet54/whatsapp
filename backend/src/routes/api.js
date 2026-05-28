@@ -37,7 +37,12 @@ function createApiRouter({ whatsappService }) {
   const router = express.Router();
 
   router.post("/login", asyncHandler(async (req, res) => {
-    whatsappService.initialize();
+    try {
+      await whatsappService.initialize();
+    } catch (err) {
+      // initialize() already resets its own state on failure
+      console.error("Login init error:", err.message);
+    }
     res.json({ message: "Login initialization started", ...whatsappService.getStatus() });
   }));
 
@@ -52,6 +57,11 @@ function createApiRouter({ whatsappService }) {
     await whatsappService.logout();
     res.json({ message: "Logged out successfully" });
   }));
+
+  router.post("/reset", (req, res) => {
+    whatsappService.forceReset();
+    res.json({ message: "WhatsApp service reset. You can login again." });
+  });
 
   router.post("/parse-text", (req, res) => {
     const { text = "" } = req.body;
@@ -128,18 +138,22 @@ function createApiRouter({ whatsappService }) {
       queueService.processQueue({
         whatsappService,
         onProgress: ({ status, number }) => {
-          const current = historyService.getHistory().find((item) => item.id === history.id);
+          const current = historyService.getHistoryById(history.id);
           if (!current) return;
 
           const patch = {};
           if (status === "sent") {
             patch.sent = (current.sent || 0) + 1;
             patch.pending = Math.max((current.pending || 0) - 1, 0);
-            patch.sentNumbers = [...(current.sentNumbers || []), number];
+            if (!current.sentNumbers) current.sentNumbers = [];
+            current.sentNumbers.push(number);
+            patch.sentNumbers = current.sentNumbers;
           } else {
             patch.failed = (current.failed || 0) + 1;
             patch.pending = Math.max((current.pending || 0) - 1, 0);
-            patch.failedNumbers = [...(current.failedNumbers || []), number];
+            if (!current.failedNumbers) current.failedNumbers = [];
+            current.failedNumbers.push(number);
+            patch.failedNumbers = current.failedNumbers;
           }
 
           historyService.updateHistory(history.id, patch);

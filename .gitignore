@@ -8,3 +8,5 @@ backend/.wwebjs_auth/
 backend/.wwebjs_cache/
 .DS_Store
 *.log
+node_modules
+kuch
