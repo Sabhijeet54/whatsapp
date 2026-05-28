@@ -43,7 +43,7 @@ export default function LoginPage() {
       router.push("/dashboard");
       return;
     }
-    if (whatsapp.status === "disconnected" && !autoStarted.current) {
+    if ((whatsapp.status === "disconnected" || whatsapp.status === "reconnect_failed") && !autoStarted.current) {
       autoStarted.current = true;
       startLogin();
     }
@@ -60,6 +60,8 @@ export default function LoginPage() {
 
   const waitingForQr = loading || ["loading", "authenticated"].includes(whatsapp.status) || (autoStarted.current && whatsapp.status === "disconnected" && !whatsapp.qrCode);
 
+  const canStartLogin = !loading && whatsapp.status !== "connected" && !waitingForQr;
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/30 p-6">
       <div className="mx-auto flex max-w-5xl flex-col gap-6">
@@ -70,7 +72,7 @@ export default function LoginPage() {
           <CardContent className="space-y-4">
             <div className="flex items-center gap-3">
               <Badge variant={whatsapp.status === "connected" ? "default" : "secondary"}>{statusMap[whatsapp.status] || whatsapp.status}</Badge>
-              <Button onClick={startLogin} disabled={loading || whatsapp.status === "connected" || waitingForQr}>
+              <Button onClick={startLogin} disabled={!canStartLogin}>
                 {loading ? "Starting..." : "Start Login"}
               </Button>
               <Button variant="outline" onClick={logout}>Logout</Button>
