@@ -1,0 +1,10 @@
+node_modules/
+.next/
+.env
+.env.local
+backend/uploads/
+backend/data/
+backend/.wwebjs_auth/
+backend/.wwebjs_cache/
+.DS_Store
+*.log
